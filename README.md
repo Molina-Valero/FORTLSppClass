@@ -8,8 +8,8 @@ Generate 2D projections of 3D tree point clouds from LAS/LAZ files.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tree-projection.git
-cd tree-projection
+git clone https://github.com/Molina-Valero/FORTLSppClass.git
+cd FORTLSppClass
 ```
 
 2. Create a virtual environment (recommended):
