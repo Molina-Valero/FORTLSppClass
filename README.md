@@ -4,7 +4,7 @@
 
 Generate 2D projections of 3D tree point clouds from LAS/LAZ files.
 
-## Installation
+### Installation
 
 1. Clone the repository:
 ```bash
