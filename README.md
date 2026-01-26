@@ -1,6 +1,6 @@
 # FORTLSppClass
 ## Tree species classification from gound-based LiDAR
-
+This workflow classifies tree species from cross-section images of individual tree point clouds using a YOLOv5 image classification model.
 ## Installation
 
 1. Clone the repository:
