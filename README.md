@@ -37,7 +37,3 @@ python TreeProjection.py "G:\My Drive\data\pruebas" "G:\My Drive\data\projection
 - Generates projections at multiple angles (0°, 45°, 90°, 135°)
 - Parallel processing support
 - Automatic normalization based on highest point
-
-## License
-
-MIT License
