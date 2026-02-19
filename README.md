@@ -22,14 +22,32 @@ pip install -r requirements.txt
 
 ## Usage
 ```bash
-python TreeProjection.py <input_path> <output_path> [n_workers]
+python TreeProjection.py <input_path> <output_path> [n_workers] [canvas_size] [dpi]
 ```
+
+### Arguments:
+- `input_path`: Directory containing `.las` or `.laz` files (flat or nested structure)
+- `output_path`: Directory where projected images will be saved
+- `n_workers`: Number of parallel processes (optional)
+- `canvas_size`: Size (in pixels) of output square image (default: 1024)
+- `dpi`: Resolution in dots per inch (default: 300)
 
 **Examples:**
 ```bash
 python TreeProjection.py "data/input" "data/output" 4
 python TreeProjection.py "G:\My Drive\data\pruebas" "G:\My Drive\data\projections"
+python TreeProjection.py data/test data/output 4 1024 300
 ```
+Each processed LAS/LAZ file produces four grayscale PNG images, named `<filename>_<angle>.png`, placed in the specified output directory.
+
+## 📁 Output Format
+- PNG images (square canvas)
+- Size controlled by `canvas_size`
+- Centered and padded to avoid aspect-ratio distortion
+- Normalized point intensity for consistent brightness
+
+## 🤖 Downstream Use
+The images are formatted for training or inference with YOLO-based classification models. Images retain key structural traits of trees (crown shape, trunk taper) thanks to aspect-aware projection and padding.
 
 ## Features
 
