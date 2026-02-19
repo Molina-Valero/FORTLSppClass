@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
 import logging
+import argparse
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+
+DEFAULT_ANGLES = (0, 45, 90, 135)
 
 def las2numpy(las):
     """Convert LAS points to numpy array of [x, y, z] coordinates."""
@@ -31,7 +34,7 @@ def get_plane(angle_deg):
         v: second basis vector (z direction)
         n: normal vector to the plane
     """
-    angle = np.radians(angle_deg)
+    angle = np.radians(float(angle_deg))
     u = np.array([np.cos(angle), np.sin(angle), 0])
     v = np.array([0., 0., 1.])
     n = np.array([-np.sin(angle), np.cos(angle), 0])
@@ -54,7 +57,7 @@ def hist2d(points, xbins, ybins):
     )
     return H.T  # Transpose to match Julia's indexing
 
-def process_tree(input_file, output_folder, angles=(0, 45, 90, 135)):
+def process_tree(input_file, output_folder, angles=DEFAULT_ANGLES):
     """
     Process a single LAS file and generate projections at multiple angles.
     
@@ -151,16 +154,15 @@ def process_tree(input_file, output_folder, angles=(0, 45, 90, 135)):
     logging.info(f"Processed: {input_file}")
 
 def process_file_wrapper(args):
-    """Wrapper for multiprocessing."""
-    file, output_path = args
+    file, output_path, angles = args
     try:
-        process_tree(file, output_path)
+        process_tree(file, output_path, angles)
         return True
     except Exception as e:
         logging.error(f"Error processing {file}: {e}")
         return False
 
-def main(input_path, output_path, n_workers=None):
+def main(input_path, output_path, n_workers=None, angles=DEFAULT_ANGLES):
     """
     Process all LAS files in input directory structure.
     
@@ -186,9 +188,10 @@ def main(input_path, output_path, n_workers=None):
         las_files = list(species_folder.glob('*.las')) + list(species_folder.glob('*.laz'))
         
         for file in las_files:
-            all_tasks.append((str(file), str(output_folder_path)))
+            all_tasks.append((str(file), str(output_folder_path), list(angles)))
     
     logging.info(f"Processing {len(all_tasks)} files using {n_workers} workers...")
+    logging.info(f"Projection angles: {angles}")
     
     # Parallel processing
     with Pool(n_workers) as pool:
@@ -198,14 +201,22 @@ def main(input_path, output_path, n_workers=None):
     logging.info(f"Completed: {successful}/{len(all_tasks)} files processed successfully")
 
 if __name__ == "__main__":
-    import sys
-    
-    if len(sys.argv) < 3:
-        print("Usage: python script.py <input_path> <output_path> [n_workers]")
-        sys.exit(1)
-    
-    input_path = sys.argv[1]
-    output_path = sys.argv[2]
-    n_workers = int(sys.argv[3]) if len(sys.argv) > 3 else None
-    
-    main(input_path, output_path, n_workers)
+    parser = argparse.ArgumentParser(
+        description="Generate tree projections from LAS/LAZ point cloud files."
+    )
+    parser.add_argument("input_path", help="Path to input directory containing species folders")
+    parser.add_argument("output_path", help="Path to output directory")
+    parser.add_argument(
+        "--n_workers", type=int, default=None,
+        help="Number of parallel workers (default: CPU count)"
+    )
+    parser.add_argument(
+        "--angles", type=int, nargs="+", default=None,
+        metavar="ANGLE",
+        help=f"Projection angles in degrees (e.g. --angles 0 90). Default: {list(DEFAULT_ANGLES)}"
+    )
+
+    args = parser.parse_args()
+    angles = list(args.angles) if args.angles is not None else list(DEFAULT_ANGLES)
+
+    main(args.input_path, args.output_path, args.n_workers, angles)
