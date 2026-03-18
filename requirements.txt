@@ -1,12 +1,31 @@
+# ── Point cloud processing ────────────────────────────────────────────────────
+laspy==2.7.0
+numpy==2.4.2
+scipy>=1.9.0
+
+# ── Visualisation ─────────────────────────────────────────────────────────────
+matplotlib==3.10.8
+pillow==12.1.1
+
+# matplotlib sub-dependencies (pinned for reproducibility)
 contourpy==1.3.3
 cycler==0.12.1
 fonttools==4.61.1
 kiwisolver==1.4.9
-laspy==2.7.0
-matplotlib==3.10.8
-numpy==2.4.2
 packaging==26.0
-pillow==12.1.1
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 six==1.17.0
+
+# ── Geometric features (TreeProjection_features.py) ───────────────────────────
+# Cython extension — requires a C compiler (gcc / MSVC) and scipy at build time.
+# pip will compile from source if no pre-built wheel exists for your platform.
+jakteristics==0.6.2
+
+# ── YOLOv8 training (train_classifier.py) ─────────────────────────────────────
+# ultralytics pulls in torch automatically, but listing torch explicitly lets
+# you control the build variant (CPU-only vs CUDA). Choose ONE of:
+#   CPU-only  →  pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   CUDA 12.x →  pip install torch --index-url https://download.pytorch.org/whl/cu121
+torch>=2.0.0
+ultralytics>=8.0.0
