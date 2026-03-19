@@ -10,7 +10,7 @@ from jakteristics import compute_features, FEATURE_NAMES
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 DEFAULT_ANGLES = (0, 45, 90, 135)
-DEFAULT_SEARCH_RADIUS = 0.5  # metres; adjust to match point cloud density
+DEFAULT_SEARCH_RADIUS = 0.2  # metres; adjust to match point cloud density
 DEFAULT_FEATURE = "verticality"
 
 

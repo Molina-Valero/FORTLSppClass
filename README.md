@@ -35,7 +35,7 @@ python TreeProjection_features.py <input_path> <output_path> [n_workers] [angles
 - `canvas_size`: Size (in pixels) of output square image (default: 1024)
 - `dpi`: Resolution in dots per inch (default: 300)
 - `angles`: Generates projections at multiple angles (default: 0°, 45°, 90°, 135°)
-- `search_radius`: Implemented radius to calculate geometric features (default: 0.5)
+- `search_radius`: Implemented radius to calculate geometric features (default: 0.2)
 - `feature`: Geometric feature (default: "verticality")
 
 
@@ -43,7 +43,7 @@ python TreeProjection_features.py <input_path> <output_path> [n_workers] [angles
 ```bash
 python TreeProjection.py "data/input" "data/output" 4 1024 300
 python TreeProjection_JAMV.py "data/input" "data/output" 4 (0, 45, 90, 135)
-python TreeProjection_features.py "data/input" "data/output" 4 (0, 45, 90, 135) 0.5 "verticality"
+python TreeProjection_features.py "data/input" "data/output" 4 (0, 45, 90, 135) 0.2 "verticality"
 ```
 Each processed LAS/LAZ file produces four grayscale PNG images, named `<filename>_<angle>.png`, placed in the specified output directory.
 
