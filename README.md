@@ -1,6 +1,6 @@
 # FORTLSppClass
 ## Tree species classification from gound-based LiDAR
-This workflow classifies tree species from cross-section images of individual tree point clouds using a YOLOv5 image classification model. The script TreeProjection.py generates four 600×800 px cross-section images for each input LAS/LAZ file, rendered from four viewing angles: 0°, 45°, 90°, and 135°.
+This workflow classifies tree species from cross-section images of individual tree point clouds using a YOLOv5 image classification model. The script TreeProjection.py generates four 640×640 px cross-section images for each input LAS/LAZ file, rendered from four viewing angles: 0°, 45°, 90°, and 135°.
 ## Installation
 
 1. Clone the repository:
@@ -9,7 +9,7 @@ git clone https://github.com/Molina-Valero/FORTLSppClass.git
 cd FORTLSppClass
 ```
 
-2. Create a virtual environment (recommended):
+2. Create a virtual environment (optional):
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -21,8 +21,11 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+# Tree projections
 ```bash
-python TreeProjection.py <input_path> <output_path> [n_workers] [canvas_size] [dpi]
+python TreeProjection.py <input_path> <output_path> [n_workers] [canvas_size] [dpi] # Alessia
+python TreeProjection_JAMV.py <input_path> <output_path> [n_workers] [angles] # Juan
+python TreeProjection_features.py <input_path> <output_path> [n_workers] [angles] [search_radius] [feature] # Juan
 ```
 
 ### Arguments:
@@ -31,12 +34,16 @@ python TreeProjection.py <input_path> <output_path> [n_workers] [canvas_size] [d
 - `n_workers`: Number of parallel processes (optional)
 - `canvas_size`: Size (in pixels) of output square image (default: 1024)
 - `dpi`: Resolution in dots per inch (default: 300)
+- `angles`: Generates projections at multiple angles (default: 0°, 45°, 90°, 135°)
+- `search_radius`: Implemented radius to calculate geometric features (default: 0.5)
+- `feature`: Geometric feature (default: "verticality")
+
 
 **Examples:**
 ```bash
-python TreeProjection.py "data/input" "data/output" 4
-python TreeProjection.py "G:\My Drive\data\pruebas" "G:\My Drive\data\projections"
-python TreeProjection.py data/test data/output 4 1024 300
+python TreeProjection.py "data/input" "data/output" 4 1024 300
+python TreeProjection_JAMV.py "data/input" "data/output" 4 (0, 45, 90, 135)
+python TreeProjection_features.py "data/input" "data/output" 4 (0, 45, 90, 135) 0.5 "verticality"
 ```
 Each processed LAS/LAZ file produces four grayscale PNG images, named `<filename>_<angle>.png`, placed in the specified output directory.
 

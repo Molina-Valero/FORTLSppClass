@@ -179,14 +179,17 @@ def main(input_path, output_path, n_workers=None, angles=DEFAULT_ANGLES):
     
     # Collect all files to process
     all_tasks = []
+
+    # Case 1: files directly in input_path (flat structure)
+    top_level_files = list(input_path.glob('*.las')) + list(input_path.glob('*.laz'))
+    for file in top_level_files:
+        all_tasks.append((str(file), str(output_path), list(angles)))
+
+    # Case 2: files inside subfolders (species folder structure)
     species_folders = [d for d in input_path.iterdir() if d.is_dir()]
-    
     for species_folder in species_folders:
-        output_folder_name = species_folder.name
-        output_folder_path = output_path / output_folder_name
-        
+        output_folder_path = output_path / species_folder.name
         las_files = list(species_folder.glob('*.las')) + list(species_folder.glob('*.laz'))
-        
         for file in las_files:
             all_tasks.append((str(file), str(output_folder_path), list(angles)))
     

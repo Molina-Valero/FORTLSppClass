@@ -1,0 +1,10 @@
+# YOLO runs output
+runs/
+
+# Model weights
+yolo26n.pt
+yolov8n-cls.pt
+
+# CSV files
+predictions.csv
+predictions_test.csv

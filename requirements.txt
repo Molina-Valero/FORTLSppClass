@@ -1,5 +1,6 @@
 # ── Point cloud processing ────────────────────────────────────────────────────
 laspy==2.7.0
+lazrs>=0.6.0          # LAZ decompression backend for laspy
 numpy==2.4.2
 scipy>=1.9.0
 
@@ -23,9 +24,14 @@ six==1.17.0
 jakteristics==0.6.2
 
 # ── YOLOv8 training (train_classifier.py) ─────────────────────────────────────
-# ultralytics pulls in torch automatically, but listing torch explicitly lets
-# you control the build variant (CPU-only vs CUDA). Choose ONE of:
-#   CPU-only  →  pip install torch --index-url https://download.pytorch.org/whl/cpu
-#   CUDA 12.x →  pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Install torch separately BEFORE running pip install -r requirements.txt.
+# Choose ONE of the commands below depending on your setup:
+#
+#   CPU-only:
+#     pip install torch --index-url https://download.pytorch.org/whl/cpu
+#
+#   CUDA 12.x:
+#     pip install torch --index-url https://download.pytorch.org/whl/cu128
+#
 torch>=2.0.0
 ultralytics>=8.0.0
