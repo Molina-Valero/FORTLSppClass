@@ -15,7 +15,13 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. Install PyTorch separately BEFORE running `pip install -r requirements.txt`.
+
+   Choose ONE of the commands below depending on your setup and CUDA version:
+    - CPU-only: pip install torch --index-url https://download.pytorch.org/whl/cpu
+    - CUDA 12.x (replace 12.8 with your CUDA version): pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+4. Install the rest of the dependencies:
 ```bash
 pip install -r requirements.txt
 ```

@@ -8,3 +8,6 @@ yolov8n-cls.pt
 # CSV files
 predictions.csv
 predictions_test.csv
+
+# PyCharm IDE files
+.idea/
