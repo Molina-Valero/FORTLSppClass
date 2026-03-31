@@ -68,3 +68,16 @@ The images are formatted for training or inference with YOLO-based classificatio
 - Generates projections at multiple angles (0°, 45°, 90°, 135°)
 - Parallel processing support
 - Automatic normalization based on highest point
+
+## 📊 Classification Performance by Feature
+
+Classification accuracy metrics for each geometric feature used in tree species identification, evaluated using a YOLOv5 model.
+
+| Feature       | Precision | Recall | F1-Score | mAP@0.5 |
+|---------------|-----------|--------|----------|---------|
+| Verticality   | -         | -      | -        | -       |
+| Sphericity    | -         | -      | -        | -       |
+| Linearity     | -         | -      | -        | -       |
+| Planarity     | -         | -      | -        | -       |
+
+> Metrics computed on the test set. **Bold** values indicate best performance per column.
