@@ -73,6 +73,12 @@ The images are formatted for training or inference with YOLO-based classificatio
 
 Classification accuracy metrics for each geometric feature used in tree species identification, evaluated using a YOLOv5 model.
 
+"""
+YOLO Image Classification Trainer
+Usage:
+  python train_classifier.py --data "C:/path/to/dataset" --model yolov8s-cls.pt --epochs 100 --imgsz 640 --batch 16 --name my_run
+"""
+
 | Feature       | Precision | Recall | F1-Score | mAP@0.5 |
 |---------------|-----------|--------|----------|---------|
 | Verticality   | -         | -      | -        | -       |
