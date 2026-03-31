@@ -78,11 +78,11 @@ Usage:
   python train_classifier.py --data "C:/path/to/dataset" --model yolov8s-cls.pt --epochs 100 --imgsz 640 --batch 16 --name my_run
 ```
 
-| Feature       | Precision | Recall | F1-Score | mAP@0.5 |
-|---------------|-----------|--------|----------|---------|
-| Verticality   | -         | -      | -        | -       |
-| Sphericity    | -         | -      | -        | -       |
-| Linearity     | -         | -      | -        | -       |
-| Planarity     | -         | -      | -        | -       |
+| Feature       | Precision (Top-1) | Precision (Top-5) |
+|---------------|-------------------|-------------------|
+| Verticality   |             0.7357|             0.9530|
+| Sphericity    | -                 | -                 |
+| Linearity     | -                 | -                 |
+| Planarity     | -                 | -                 |
 
 > Metrics computed on the test set. **Bold** values indicate best performance per column.
