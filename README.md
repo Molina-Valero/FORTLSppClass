@@ -81,7 +81,7 @@ Usage:
 | Feature       | Precision (Top-1) | Precision (Top-5) |
 |---------------|-------------------|-------------------|
 | Verticality   |             0.7357|             0.9530|
-| Sphericity    | -                 | -                 |
+| Sphericity    |             0.7174|             0.9530|
 | Linearity     | -                 | -                 |
 | Planarity     | -                 | -                 |
 
