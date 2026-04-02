@@ -82,7 +82,7 @@ Usage:
 |---------------|-------------------|-------------------|
 | Verticality   |             0.7357|             0.9530|
 | Sphericity    |             0.7174|             0.9530|
-| Linearity     | -                 | -                 |
+| Linearity     |             0.7377|             0.9526|
 | Planarity     | -                 | -                 |
 
 > Metrics computed on the test set. **Bold** values indicate best performance per column.
