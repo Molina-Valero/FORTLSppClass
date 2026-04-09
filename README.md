@@ -27,6 +27,29 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+TODO
+
+# Data analysis
+Exploration of the dataset
+
+## Point cloud sizes
+
+The number of points in the training and test sets is shown in the following histograms:
+
+_Training set_
+![train_histo](outputs/point_histograms/train_point_histogram.png)
+
+_Test set_
+![test_histo](outputs/point_histograms/test_point_histogram.png)
+
+
+## Low-point clouds
+The following table lists the number of point clouds with fewer than 1000 points.
+
+![stats](outputs/point_histograms/low_point_by_species.png)
+
+
 # Tree projections
 ```bash
 python TreeProjection.py <input_path> <output_path> [n_workers] [canvas_size] [dpi] # Alessia
