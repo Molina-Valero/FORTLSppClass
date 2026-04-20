@@ -6,13 +6,14 @@ three bar charts showing how many trees fall below a point-count threshold,
 broken down by species, data_type, and tree height range (z-range proxy).
 
 Usage:
-    python analyze_low_point_trees.py <las_dir> <csv_path> [--threshold N]
+    python analyze_low_point_trees.py <las_dir> <csv_path> [--threshold N] [--density_threshold N]
 
 Arguments:
     las_dir      Root directory that contains the .las files.
                  Paths in the CSV (e.g. /train/00070.las) are joined to this root.
     csv_path     Path to tree_metadata_dev.csv (tab-separated).
     --threshold  Point count below which a tree is considered "low-point" (default: 1000).
+    --density_threshold Point density threshold (points per metre of z-range) for an additional reference line in the scatter plot (default: same as --threshold).
 """
 
 import argparse
@@ -96,6 +97,52 @@ def _bar_chart(ax, categories, low_counts, title, xlabel, note=None):
                     style="italic")
 
 
+DATA_TYPE_COLORS = {
+    "TLS": "#4C9BE8",
+    "ULS": "#E8A84C",
+    "MLS": "#6EC87A",
+}
+DEFAULT_COLOR = "#AAAAAA"  # fallback for unexpected data_type values
+
+
+def plot_points_vs_height(df: pd.DataFrame, threshold: int, density_threshold: int, out_dir: Path):
+    """Scatter plot of point_count vs tree_H, coloured by data_type."""
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    for dtype, group in df.groupby("data_type"):
+        color = DATA_TYPE_COLORS.get(dtype, DEFAULT_COLOR)
+        ax.scatter(group["tree_H"], group["point_count"],
+                   label=dtype, color=color,
+                   alpha=0.55, s=12, linewidths=0)
+
+    # Horizontal reference line: absolute point count threshold
+    ax.axhline(threshold, color="#E07B6A", linewidth=1.2,
+               linestyle="--", label=f"Absolute threshold ({threshold:,} pts)")
+
+    # Diagonal reference line: point density threshold (pts per metre of z-range)
+    x_range = np.linspace(df["tree_H"].min(), df["tree_H"].max(), 200)
+    ax.plot(x_range, density_threshold * x_range, color="#A45EE0", linewidth=1.2,
+            linestyle="--", label=f"Density threshold ({density_threshold:,} pts/m)")
+
+    ax.set_yscale("log")
+    ax.set_title("Point count vs z-range by acquisition type", fontsize=13, fontweight="bold", pad=10)
+    ax.set_xlabel("tree_H — z-range proxy (m), not true tree height", fontsize=10)
+    ax.set_ylabel("Point count (log scale)", fontsize=10)
+    ax.legend(fontsize=9, framealpha=0.7)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(alpha=0.25, linestyle="--")
+    ax.annotate("tree_H = max_z − min_z per tree; used here only as a rough size proxy.",
+                xy=(0.01, 0.01), xycoords="axes fraction",
+                va="bottom", fontsize=7, color="#777777", style="italic")
+
+    fig.tight_layout()
+    path = out_dir / "points_vs_height_scatter.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    logging.info(f"Saved → {path}")
+    plt.show()
+
+
 def plot_by_species(df_low: pd.DataFrame, threshold: int, out_dir: Path):
     species_low = df_low["species"].value_counts().sort_index()
 
@@ -160,6 +207,9 @@ def main():
     parser.add_argument("csv_path", type=Path, help="Path to tree_metadata_dev.csv.")
     parser.add_argument("--threshold", type=int, default=1000,
                         help="Point count threshold for 'low-point' (default: 1000).")
+    parser.add_argument("--density_threshold", type=int, default=1000,
+                        help="Point density threshold (#of points per meter) for additional reference line (default: same as --threshold).")
+
     args = parser.parse_args()
 
     if not args.las_dir.is_dir():
@@ -209,6 +259,7 @@ def main():
     plot_by_species(df_low, args.threshold, out_dir)
     plot_by_data_type(df_low, args.threshold, out_dir)
     plot_by_tree_h(df_low, args.threshold, out_dir)
+    plot_points_vs_height(df, args.threshold, args.density_threshold, out_dir)
 
 
 if __name__ == "__main__":
