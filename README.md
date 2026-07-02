@@ -1,6 +1,6 @@
 # FORTLSppClass
 ## Tree species classification from gound-based LiDAR
-This workflow classifies tree species from cross-section images of individual tree point clouds using a YOLOv5 image classification model. The script TreeProjection.py generates four 640×640 px cross-section images for each input LAS/LAZ file, rendered from four viewing angles: 0°, 45°, 90°, and 135°.
+This workflow classifies tree species from cross-section images of individual tree point clouds using a YOLOv8 image classification model. The script TreeProjection.py generates four 640×640 px cross-section images for each input LAS/LAZ file, rendered from four viewing angles: 0°, 45°, 90°, and 135°.
 ## Installation
 
 1. Clone the repository:
