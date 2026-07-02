@@ -11,3 +11,5 @@ predictions_test.csv
 
 # PyCharm IDE files
 .idea/
+yolov8s-cls.pt
+Thumbs.db
