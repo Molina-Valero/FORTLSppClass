@@ -119,9 +119,14 @@ def main(input_path, output_path, n_workers=None, canvas_size=1024, dpi=300):
         n_workers = cpu_count()
 
     all_tasks = []
-    las_files = list(input_path.glob('*.las')) + list(input_path.glob('*.laz'))
+    las_files = sorted(input_path.rglob('*.las')) + sorted(input_path.rglob('*.laz'))
     for file in las_files:
-        all_tasks.append((str(file), str(output_path), canvas_size, dpi))
+        # Preserve the species subfolder structure (e.g. "Abies alba"),
+        # mirroring what balance_dataset.py does. Files directly in
+        # input_path (species == ".") land straight in output_path.
+        species = file.parent.relative_to(input_path)
+        out_dir = output_path / species
+        all_tasks.append((str(file), str(out_dir), canvas_size, dpi))
 
     logging.info(f"Found {len(all_tasks)} files to process using {n_workers} workers...")
     with Pool(n_workers) as pool:
