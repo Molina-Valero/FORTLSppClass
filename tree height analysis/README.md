@@ -65,3 +65,27 @@ These samples suggest that many low-height trees are sparse, low-detail renderin
 
 ![trees_0_3_meters.png](trees_0_3_meters.png)
 
+## Accuracy per Height Range
+
+We bin the tree-H value into the following ranges:
+- `0-3 m`
+- `3-5 m`
+- `5-7 m`
+- `7-10 m`
+- `10-20 m`
+- `>20 m`
+
+The amount of trees in each range:
+
+| Split                | 0-3 m | 3-5 m | 5-7 m | 7-10 m | 10-20 m | >20 m |
+|:---------------------| ----: | ----: | ----: | -----: | ------: | ----: |
+| 'train'              |  3808 |  5748 |  5364 |   6452 |   16456 | 17740 |
+| 'validation'         |   980 |  1512 |  1228 |   1624 |    4300 |  4384 |
+
+
+Based on this we analyze the performance of the model on each range. 
+
+We can see that the model struggles to predict the trees in the smaller ranges.
+
+![accuracy_per_height_range.png](accuracy_per_height_range.png)
+
