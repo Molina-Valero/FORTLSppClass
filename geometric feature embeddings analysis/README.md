@@ -7,6 +7,16 @@ All features obtained using DINO ViT-L and classified with Logistic Regression.
 
 **Result summary:** The studied geometric features did not appear to improve the classification results or separability.
 
+| Geometric feature | F1-score (macro) | Accuracy | Support |
+|---|---:|---:|---:|
+| Point density (standard) | 0.71 | 0.70 | 560 |
+| Linearity | 0.75 | 0.75 | 2512 |
+| Anisotropy | 0.76 | 0.76 | 2456 |
+| Planarity | 0.75 | 0.75 | 2476 |
+| Sphericity | 0.75 | 0.75 | 2512 |
+| Surface variation | 0.75 | 0.75 | 2512 |
+
+
 ## Point density (standard)
 
 ![point_density_tsne.png](point_density_tsne.png)
