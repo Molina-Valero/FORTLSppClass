@@ -5,7 +5,9 @@ If available, classification results and top confounders using the embeddings ar
 
 All features obtained using DINO ViT-L and classified with Logistic Regression.
 
-**Result summary:** The studied geometric features did not appear to improve the classification results or separability.
+**Result summary:** The studied geometric features did not appear to improve the classification results or separability. 
+
+Note that support for point density was smaller.
 
 | Geometric feature | F1-score (macro) | Accuracy | Support |
 |---|---:|---:|---:|
