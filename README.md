@@ -73,14 +73,56 @@ The images are formatted for training or inference with YOLO-based classificatio
 - Parallel processing support
 - Automatic normalization based on highest point
 
-## 📊 Classification Performance by Feature
+# YOLO Image Classification Trainer
 
-Classification accuracy metrics for each geometric feature used in tree species identification, evaluated using a YOLOv5 model.
+Train a YOLO classification model on your own dataset.
+
+## Usage
+
+**Option 1 — single folder (auto-split or pre-split into `train/`/`val/`)**
 ```bash
-YOLO Image Classification Trainer
-Usage:
-  python train_classifier.py --data "C:/path/to/dataset" --model yolov8s-cls.pt --epochs 100 --imgsz 640 --batch 16 --name my_run
+python train_classifier.py --data "path/to/dataset"
 ```
+
+**Option 2 — separate train/val folders** (no need to move or copy files — the script links them automatically)
+```bash
+python train_classifier.py --train "path/to/train" --val "path/to/val"
+```
+
+**Common options**
+```bash
+python train_classifier.py --train "path/to/train" --val "path/to/val" \
+  --model yolov8s-cls.pt \
+  --epochs 50 \
+  --imgsz 640 \
+  --batch 16 \
+  --name my_run \
+  --device 0
+```
+
+## Options
+
+| Flag | Description | Default |
+|---|---|---|
+| `--data` | Dataset folder (with `train/`+`val/` subfolders) | — |
+| `--train`, `--val` | Separate train/val folders, used together instead of `--data` | — |
+| `--model` | Base YOLO classification model | `yolov8n-cls.pt` |
+| `--epochs` | Training epochs | `50` |
+| `--imgsz` | Image size | `640` |
+| `--batch` | Batch size | `16` |
+| `--name` | Run name (output folder) | `my_classifier` |
+| `--device` | `0` for GPU, `cpu`, or `mps` | auto-detected |
+| `--test` | Optional image path to run a prediction on after training | — |
+
+Results are saved to `runs/classify/<name>/`, with best weights at `runs/classify/<name>/weights/best.pt`.
+
+## Requirements
+
+```bash
+pip install ultralytics torch
+```
+
+## 📊 Classification Performance by Feature
 
 | Feature       | Precision (Top-1) | Precision (Top-5) |
 |---------------|-------------------|-------------------|
