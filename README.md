@@ -116,12 +116,6 @@ python train_classifier.py --train "path/to/train" --val "path/to/val" \
 
 Results are saved to `runs/classify/<name>/`, with best weights at `runs/classify/<name>/weights/best.pt`.
 
-## Requirements
-
-```bash
-pip install ultralytics torch
-```
-
 ## 📊 Classification Performance by Feature
 
 | Feature       | Precision (Top-1) | Precision (Top-5) |
