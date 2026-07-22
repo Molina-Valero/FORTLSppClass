@@ -3,17 +3,25 @@ YOLO Image Classification Trainer
 Usage:
   python train_classifier.py --data "C:/path/to/dataset"
   python train_classifier.py --data "C:/path/to/dataset" --model yolov8s-cls.pt --epochs 100 --imgsz 640 --batch 16 --name my_run
+
+  # Or point directly at separate train/val folders (no need to physically
+  # merge or copy them — a small linked folder is created automatically):
+  python train_classifier.py --train "C:/path/to/train" --val "C:/path/to/val" --name my_run
 """
 
 import sys
 import os
 import argparse
+import subprocess
+import shutil
 from multiprocessing import freeze_support
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="YOLO Image Classification Trainer")
-    parser.add_argument("--data",   required=True,             help="Path to dataset folder or .yaml file")
+    parser.add_argument("--data",   default=None,              help="Path to dataset folder (with train/ and val/ subfolders) or .yaml file")
+    parser.add_argument("--train",  default=None,              help="Path to the training images folder (per-class subfolders). Use together with --val instead of --data.")
+    parser.add_argument("--val",    default=None,              help="Path to the validation images folder (per-class subfolders). Use together with --train instead of --data.")
     parser.add_argument("--model",  default="yolov8n-cls.pt",  help="Model to use (default: yolov8n-cls.pt)")
     parser.add_argument("--epochs", default=50,   type=int,    help="Number of epochs (default: 50)")
     parser.add_argument("--imgsz",  default=640,  type=int,    help="Image size (default: 640)")
@@ -21,7 +29,62 @@ def parse_args():
     parser.add_argument("--name",   default="my_classifier",   help="Experiment name (default: my_classifier)")
     parser.add_argument("--device", default=None,              help="Device: 0 (GPU), cpu, mps. Auto-detected if not set.")
     parser.add_argument("--test",   default=None,              help="Optional: path to a test image for prediction")
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.data and (args.train or args.val):
+        parser.error("Use either --data OR --train/--val, not both.")
+    if bool(args.train) != bool(args.val):
+        parser.error("--train and --val must be provided together.")
+    if not args.data and not args.train:
+        parser.error("You must provide either --data, or both --train and --val.")
+
+    return args
+
+
+def make_junction(link_path, target_path):
+    """Create (or replace) a Windows directory junction at link_path pointing to target_path.
+    Junctions don't require admin rights and don't copy any files."""
+    target_path = os.path.abspath(target_path)
+
+    if os.path.islink(link_path) or os.path.isdir(link_path):
+        # Remove the existing junction/link itself (NOT the real target folder).
+        # rmdir on a junction only removes the link, never the linked contents.
+        try:
+            os.rmdir(link_path)
+        except OSError:
+            shutil.rmtree(link_path)
+
+    result = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", link_path, target_path],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        print(f"\n[ERROR] Failed to create junction:\n  {link_path} -> {target_path}")
+        print(result.stdout)
+        print(result.stderr)
+        sys.exit(1)
+
+
+def build_dataset_dir(train_path, val_path, name):
+    """Build a dataset_root/train + dataset_root/val layout using junctions,
+    without copying any images. Returns the dataset_root path."""
+    for label, p in (("--train", train_path), ("--val", val_path)):
+        if not os.path.exists(p):
+            print(f"\n[ERROR] {label} path not found: '{p}'\n")
+            sys.exit(1)
+
+    dataset_root = os.path.abspath(os.path.join("runs", "dataset_links", name))
+    os.makedirs(dataset_root, exist_ok=True)
+
+    train_link = os.path.join(dataset_root, "train")
+    val_link = os.path.join(dataset_root, "val")
+
+    print(f"[INFO] Linking train folder: {train_link} -> {train_path}")
+    make_junction(train_link, train_path)
+    print(f"[INFO] Linking val folder  : {val_link} -> {val_path}")
+    make_junction(val_link, val_path)
+
+    return dataset_root
 
 
 def main():
@@ -63,13 +126,17 @@ def main():
         print("[WARNING] torch not found, defaulting to CPU")
 
     # ─────────────────────────────────────────
-    #  VALIDATE DATASET PATH
+    #  RESOLVE DATASET PATH
     # ─────────────────────────────────────────
 
-    if not os.path.exists(args.data):
-        print(f"\n[ERROR] Dataset path not found: '{args.data}'")
-        print("Make sure the folder exists and the path is correct.\n")
-        sys.exit(1)
+    if args.train and args.val:
+        data_path = build_dataset_dir(args.train, args.val, args.name)
+    else:
+        data_path = args.data
+        if not os.path.exists(data_path):
+            print(f"\n[ERROR] Dataset path not found: '{data_path}'")
+            print("Make sure the folder exists and the path is correct.\n")
+            sys.exit(1)
 
     # ─────────────────────────────────────────
     #  TRAIN
@@ -79,7 +146,7 @@ def main():
     print("  YOLO Classification Training")
     print("="*50)
     print(f"  Model      : {args.model}")
-    print(f"  Dataset    : {args.data}")
+    print(f"  Dataset    : {data_path}")
     print(f"  Epochs     : {args.epochs}")
     print(f"  Image size : {args.imgsz}")
     print(f"  Batch size : {args.batch}")
@@ -90,7 +157,7 @@ def main():
     model = YOLO(args.model)
 
     model.train(
-        data=args.data,
+        data=data_path,
         epochs=args.epochs,
         imgsz=args.imgsz,
         batch=args.batch,
