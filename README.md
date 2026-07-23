@@ -73,7 +73,8 @@ The images are formatted for training or inference with YOLO-based classificatio
 - Parallel processing support
 - Automatic normalization based on highest point
 
-# YOLO Image Classification Trainer
+# YOLO Image Classification 
+## Training
 
 Train a YOLO classification model on your own dataset.
 
@@ -115,6 +116,54 @@ python train_classifier.py --train "path/to/train" --val "path/to/val" \
 | `--test` | Optional image path to run a prediction on after training | — |
 
 Results are saved to `runs/classify/<name>/`, with best weights at `runs/classify/<name>/weights/best.pt`.
+
+# Prediction
+
+Predicts tree species from cropped tree images (produced downstream of TLS
+point-cloud tree detection) using a trained YOLO classifier.
+
+## Pipeline position
+
+```
+Point cloud → tree detection (FORTLS) → per-tree image crops
+    → predict_classifier.py → predictions_tree.csv
+    → merge on treeID with tree-attribute table
+```
+
+Images per tree must share a `treeID` prefix before the first underscore
+(`00069_1.jpg`, `00069_2.jpg`, ... → `treeID = 00069`), matching the tree
+IDs from the detection step.
+
+## Usage
+
+```bash
+pip install ultralytics torch
+
+python predict_classifier.py \
+  --source "path/to/tree_images_folder" \
+  --model best.pt \
+  --tree_output predictions_tree.csv
+```
+
+## Output
+
+`predictions_tree.csv` — one row per tree:
+
+```
+"treeID","predicted_species"
+"00069","Eucalyptus_miniata"
+```
+
+The species per tree is chosen by **majority vote** across that tree's
+images, with ties broken by summed confidence. A per-image CSV
+(`predictions.csv`) is also written for inspection.
+
+Join `predictions_tree.csv` on `treeID` with the tree-attribute table from
+FORTLS (DBH, height, coordinates) for stand-level analysis.
+
+*Note: couldn't fetch the actual repo folder structure (GitHub blocks
+automated access), so adjust paths above if they differ.*
+
 
 ## 📊 Classification Performance by Feature
 
