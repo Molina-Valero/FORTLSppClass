@@ -10,6 +10,7 @@ import sys
 import os
 import csv
 import argparse
+from collections import defaultdict
 from multiprocessing import freeze_support
 
 
@@ -24,6 +25,8 @@ def parse_args():
     parser.add_argument("--save_txt",action="store_true",     help="Save predictions as .txt files")
     parser.add_argument("--device",  default=None,            help="Device: 0 (GPU), cpu, mps. Auto-detected if not set.")
     parser.add_argument("--output",  default="predictions.csv",help="Output CSV file path (default: predictions.csv)")
+    parser.add_argument("--tree_output", default="predictions_tree.csv",
+                         help="Output CSV path for per-tree (voted) predictions (default: predictions_tree.csv)")
     return parser.parse_args()
 
 
@@ -95,6 +98,7 @@ def main():
     print(f"  Save       : {args.save}")
     print(f"  Save txt   : {args.save_txt}")
     print(f"  Output CSV : {args.output}")
+    print(f"  Tree CSV   : {args.tree_output}")
     print("="*50 + "\n")
 
     # ─────────────────────────────────────────
@@ -125,10 +129,15 @@ def main():
 
     csv_rows = []
 
+    # tree_predictions[treeID] = list of (species, confidence) — one entry per image
+    tree_predictions = defaultdict(list)
+
     print("-"*50)
     for i, result in enumerate(results):
         source_path = result.path if hasattr(result, "path") else f"sample_{i}"
         picture_id = os.path.splitext(os.path.basename(source_path))[0]
+        # treeID is the prefix of the image filename, e.g. "00069_1" -> "00069"
+        tree_id = picture_id.split("_")[0]
         print(f"\n  File : {os.path.basename(source_path)}")
 
         probs = result.probs
@@ -153,6 +162,7 @@ def main():
                 "species":    predicted_species,
                 "confidence": f"{confidence:.4f}",
             })
+            tree_predictions[tree_id].append((predicted_species, confidence))
         else:
             print("  [WARNING] No classification probabilities found in result.")
             csv_rows.append({
@@ -164,6 +174,31 @@ def main():
     print("-"*50)
 
     # ─────────────────────────────────────────
+    #  AGGREGATE PER-TREE PREDICTIONS (MAJORITY VOTE)
+    # ─────────────────────────────────────────
+    #  For each treeID (built from the 4 images belonging to that tree),
+    #  the winning species is the one predicted by the most images.
+    #  Ties are broken by the highest summed confidence among the tied species.
+
+    tree_rows = []
+    for tree_id in sorted(tree_predictions.keys()):
+        preds = tree_predictions[tree_id]
+
+        votes = defaultdict(int)
+        conf_sum = defaultdict(float)
+        for species, confidence in preds:
+            votes[species] += 1
+            conf_sum[species] += confidence
+
+        # Pick species with most votes; tie-break by highest total confidence
+        winning_species = max(votes.keys(), key=lambda s: (votes[s], conf_sum[s]))
+
+        tree_rows.append({
+            "treeID": tree_id,
+            "predicted_species": winning_species,
+        })
+
+    # ─────────────────────────────────────────
     #  SAVE CSV
     # ─────────────────────────────────────────
 
@@ -173,6 +208,21 @@ def main():
         writer.writerows(csv_rows)
 
     print(f"\n[INFO] CSV saved to: {args.output}  ({len(csv_rows)} rows)")
+
+    # ─────────────────────────────────────────
+    #  SAVE PER-TREE CSV
+    # ─────────────────────────────────────────
+
+    with open(args.tree_output, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["treeID", "predicted_species"],
+            quoting=csv.QUOTE_ALL,
+        )
+        writer.writeheader()
+        writer.writerows(tree_rows)
+
+    print(f"[INFO] Tree-level CSV saved to: {args.tree_output}  ({len(tree_rows)} rows)")
 
     if args.save:
         print(f"[INFO] Annotated results saved to: runs/classify/predict/")
