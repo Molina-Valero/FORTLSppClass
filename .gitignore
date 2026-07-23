@@ -13,3 +13,5 @@ predictions_test.csv
 .idea/
 yolov8s-cls.pt
 Thumbs.db
+
+.Rhistory
